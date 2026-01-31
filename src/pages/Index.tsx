@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import ProductHero from "@/components/ProductHero";
+import OpenClawSection from "@/components/OpenClawSection";
 import EmailSignup from "@/components/EmailSignup";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
@@ -10,6 +11,7 @@ const Index = () => {
       <Header />
       <main className="flex-1">
         <ProductHero />
+        <OpenClawSection />
         <EmailSignup />
         <ContactSection />
       </main>

@@ -8,7 +8,7 @@ const ProductHero = () => {
           The <span className="text-primary">MiniBot</span> PC
         </h1>
         <p className="text-muted-foreground text-lg md:text-xl mb-8 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          Pre-installed Windows with latest MiniBot software. Ready to use out of the box.
+          Pre-installed Windows with latest OpenClaw Agent. Ready to use out of the box.
         </p>
 
         {/* Pricing */}

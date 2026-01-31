@@ -33,12 +33,12 @@ const ContactSection = () => {
           >
             <a href="mailto:gyc567@gmail.com">
               <Mail className="w-5 h-5" />
-              gyc567@gmail.com
+              Email Us
             </a>
           </Button>
 
           <Button 
-            variant="outline" 
+            variant="default" 
             size="lg"
             className="w-full sm:w-auto gap-2 h-12"
             asChild
@@ -49,10 +49,14 @@ const ContactSection = () => {
               rel="noopener noreferrer"
             >
               <XIcon />
-              @ericblock2100
+              Contact on X
             </a>
           </Button>
         </div>
+
+        <p className="text-center text-sm text-muted-foreground mt-6">
+          Orders shipped within 2-3 business days • Pay via PayPal, Stripe, or crypto
+        </p>
       </div>
     </section>
   );

@@ -12,7 +12,7 @@ const XIcon = () => (
 );
 
 const ContactSection = () => {
-  const shareUrl = "https://openclaw-allinone-minipc.vercel.app/";
+  const shareUrl = "https://www.openclawai.shop/";
   const shareText = "Check out MiniBot PC - Your Private AI Assistant in a Box ($199)";
 
   return (

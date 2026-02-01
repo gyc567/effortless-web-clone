@@ -3,7 +3,7 @@ import { useState } from "react";
 
 const SocialShare = () => {
   const [showMenu, setShowMenu] = useState(false);
-  const pageUrl = "https://openclaw-allinone-minipc.vercel.app/";
+  const pageUrl = "https://www.openclawai.shop/";
   const pageTitle = "MiniBot PC - Your Private AI Assistant in a Box ($199)";
   const pageDescription = "A mini PC with OpenClaw pre-installed. Run AI locally, keep your data private.";
 

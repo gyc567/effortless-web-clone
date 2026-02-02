@@ -14,10 +14,10 @@ const ProductHero = () => {
 
         {/* Pricing */}
         <div className="flex items-baseline justify-center gap-3 mb-6 animate-fade-in">
-          <span className="text-4xl font-bold text-primary">$199</span>
-          <span className="text-xl text-muted-foreground line-through">$299</span>
+          <span className="text-4xl font-bold text-primary">$299</span>
+          <span className="text-xl text-muted-foreground line-through">$499</span>
           <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded-full">
-            Save $100
+            Save $200
           </span>
         </div>
 

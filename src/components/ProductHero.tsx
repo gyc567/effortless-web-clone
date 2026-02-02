@@ -100,7 +100,7 @@ const ProductHero = () => {
               <Shield className="w-5 h-5 text-primary mt-0.5" />
               <div>
                 <p className="font-medium">OS</p>
-                <p className="text-muted-foreground">Windows 11 + OpenClaw</p>
+                <p className="text-muted-foreground">Ubuntu 22.04/24.04 + OpenClaw</p>
               </div>
             </div>
           </div>

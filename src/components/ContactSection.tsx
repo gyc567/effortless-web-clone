@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Mail } from "lucide-react";
+import { Mail, Twitter, Facebook, Linkedin } from "lucide-react";
 
 const XIcon = () => (
   <svg 
@@ -12,6 +12,9 @@ const XIcon = () => (
 );
 
 const ContactSection = () => {
+  const shareUrl = "https://www.openclawai.shop/";
+  const shareText = "Check out MiniBot PC - Your Private AI Assistant in a Box ($199)";
+
   return (
     <section id="contact" className="w-full px-4 md:px-8 py-12 md:py-16 border-t border-border">
       <div className="max-w-4xl mx-auto">
@@ -24,7 +27,7 @@ const ContactSection = () => {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
           <Button 
             variant="outline" 
             size="lg"
@@ -52,6 +55,40 @@ const ContactSection = () => {
               Contact on X
             </a>
           </Button>
+        </div>
+
+        {/* Share Section */}
+        <div className="bg-card rounded-xl border border-border p-6 text-center">
+          <p className="text-sm font-medium mb-4">Share this with your friends</p>
+          <div className="flex justify-center gap-3">
+            <a
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full bg-[#1DA1F2]/10 text-[#1DA1F2] flex items-center justify-center hover:bg-[#1DA1F2]/20 transition-colors"
+              aria-label="Share on Twitter"
+            >
+              <Twitter className="w-5 h-5" />
+            </a>
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full bg-[#4267B2]/10 text-[#4267B2] flex items-center justify-center hover:bg-[#4267B2]/20 transition-colors"
+              aria-label="Share on Facebook"
+            >
+              <Facebook className="w-5 h-5" />
+            </a>
+            <a
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full bg-[#0A66C2]/10 text-[#0A66C2] flex items-center justify-center hover:bg-[#0A66C2]/20 transition-colors"
+              aria-label="Share on LinkedIn"
+            >
+              <Linkedin className="w-5 h-5" />
+            </a>
+          </div>
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">

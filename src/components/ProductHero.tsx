@@ -50,7 +50,7 @@ const ProductHero = () => {
             <HardDrive className="w-4 h-4" /> 8GB RAM
           </span>
           <span className="feature-badge flex items-center gap-1">
-            <HardDrive className="w-4 h-4" /> 128GB SSD
+            <HardDrive className="w-4 h-4" /> 64GB SSD
           </span>
           <span className="feature-badge flex items-center gap-1">
             <Wifi className="w-4 h-4" /> WiFi 6
@@ -79,7 +79,7 @@ const ProductHero = () => {
               <HardDrive className="w-5 h-5 text-primary mt-0.5" />
               <div>
                 <p className="font-medium">Storage</p>
-                <p className="text-muted-foreground">128GB M.2 NVMe SSD</p>
+                <p className="text-muted-foreground">64GB M.2 NVMe SSD</p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">

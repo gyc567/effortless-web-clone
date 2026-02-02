@@ -3,6 +3,7 @@ import ProductHero from "@/components/ProductHero";
 import OpenClawSection from "@/components/OpenClawSection";
 import EmailSignup from "@/components/EmailSignup";
 import PaymentSection from "@/components/PaymentSection";
+import ReferralPromotion from "@/components/ReferralPromotion";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 
@@ -14,6 +15,7 @@ const Index = () => {
         <ProductHero />
         <OpenClawSection />
         <PaymentSection />
+        <ReferralPromotion />
         <EmailSignup />
         <ContactSection />
       </main>

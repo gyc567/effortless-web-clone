@@ -9,8 +9,8 @@
 
 | 变量名 | 值 |
 |--------|-----|
-| `NEXT_PUBLIC_SUPABASE_URL` | `https://qmgbaqqapqrxswssiavz.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | `sb_publishable_NQ1m4BylCN-iAriXQpBYJw_Jip80Tuv` |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://your-project.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | `your-publishable-key` |
 
 5. 选择 **Production** 环境
 6. 点击 **Add**
@@ -33,10 +33,10 @@ vercel link
 
 # 添加环境变量
 vercel env add NEXT_PUBLIC_SUPABASE_URL production
-# 输入: https://qmgbaqqapqrxswssiavz.supabase.co
+# 输入: https://your-project.supabase.co
 
 vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY production  
-# 输入: sb_publishable_NQ1m4BylCN-iAriXQpBYJw_Jip80Tuv
+# 输入: your-publishable-key
 
 # 重新部署
 vercel --prod

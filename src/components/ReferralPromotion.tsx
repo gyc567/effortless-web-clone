@@ -42,7 +42,7 @@ export default function ReferralPromotion() {
   // 生成推广码
   const generateCode = async () => {
     if (!twitterHandle.trim()) {
-      setError('请输入你的 Twitter 用户名');
+      setError('Please enter your Twitter username');
       return;
     }
 
@@ -94,22 +94,22 @@ export default function ReferralPromotion() {
             return;
           }
         }
-        setError('生成失败，请重试');
+        setError('Failed to generate. Please try again');
       } else {
         setPromoCode(code);
         setStep(2);
       }
     } catch (err) {
-      setError('网络错误，请重试');
+      setError('Network error. Please try again');
     } finally {
       setLoading(false);
     }
   };
 
-  // 提交推文验证
+  // Submit tweet verification
   const submitTweet = async () => {
     if (!tweetUrl.trim()) {
-      setError('请输入你的推文链接');
+      setError('Please enter your tweet URL');
       return;
     }
 
@@ -125,12 +125,12 @@ export default function ReferralPromotion() {
         .single();
 
       if (refError || !referral) {
-        setError('推广码无效');
+        setError('Invalid referral code');
         setLoading(false);
         return;
       }
 
-      // 检查是否已验证此推文
+      // Check if tweet already verified
       const { data: existingTweet } = await supabase
         .from('verified_tweets')
         .select('*')
@@ -138,19 +138,19 @@ export default function ReferralPromotion() {
         .single();
 
       if (existingTweet) {
-        setError('此推文已被验证');
+        setError('This tweet has already been verified');
         setLoading(false);
         return;
       }
 
-      // 记录推文
+      // Record tweet
       await supabase.from('verified_tweets').insert({
         referral_id: referral.id,
         twitter_handle: referral.twitter_handle,
         tweet_url: tweetUrl
       });
 
-      // 更新推广者计数
+      // Update referral count
       const newCount = referral.verified_tweets + 1;
       const canClaim = newCount >= 10;
 
@@ -178,13 +178,13 @@ export default function ReferralPromotion() {
         setStep(3);
       }
     } catch (err) {
-      setError('网络错误，请重试');
+      setError('Network error. Please try again');
     } finally {
       setLoading(false);
     }
   };
 
-  // 抽奖
+  // Claim prize
   const claimPrize = async () => {
     if (!referralData?.canClaim) return;
 
@@ -192,7 +192,7 @@ export default function ReferralPromotion() {
     setError('');
 
     try {
-      // 获取推广者信息
+      // Get referral info
       const { data: referral, error } = await supabase
         .from('referrals')
         .select('*')
@@ -200,7 +200,7 @@ export default function ReferralPromotion() {
         .single();
 
       if (error || !referral) {
-        setError('推广码无效');
+        setError('Invalid referral code');
         setLoading(false);
         return;
       }
@@ -241,13 +241,13 @@ export default function ReferralPromotion() {
         claimed: won
       });
     } catch (err) {
-      setError('网络错误，请重试');
+      setError('Network error. Please try again');
     } finally {
       setLoading(false);
     }
   };
 
-  // 分享推广链接
+  // Share referral link
   const shareReferral = () => {
     const shareText = `I just got a MiniBot PC! The private AI assistant in a box. Use my referral link:`;
     const shareUrl = `https://www.openclawai.shop/ref/${promoCode}`;
@@ -299,12 +299,12 @@ export default function ReferralPromotion() {
               disabled={loading}
               className="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
-              {loading ? '生成中...' : 'Get My Referral Code'}
+              {loading ? 'Generating...' : 'Get My Referral Code'}
             </button>
           </div>
         )}
 
-        {/* Step 2: 发推文 */}
+        {/* Step 2: Post Tweet */}
         {step === 2 && (
           <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
             <Twitter className="w-12 h-12 text-blue-400 mx-auto mb-4" />
@@ -343,13 +343,13 @@ export default function ReferralPromotion() {
                 disabled={loading}
                 className="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                {loading ? '验证中...' : 'Verify My Tweet'}
+                {loading ? 'Verifying...' : 'Verify My Tweet'}
               </button>
             </div>
           </div>
         )}
 
-        {/* Step 3: 进度追踪 */}
+        {/* Step 3: Track Progress */}
         {step === 3 && referralData && (
           <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
             <Users className="w-12 h-12 text-green-500 mx-auto mb-4" />
@@ -385,7 +385,7 @@ export default function ReferralPromotion() {
               </div>
             </div>
 
-            {/* 分享链接 */}
+            {/* Share link */}
             <div className="bg-gray-50 rounded-lg p-4 mb-4">
               <p className="text-sm text-gray-600 mb-2">Your referral link:</p>
               <code className="text-sm bg-white px-3 py-2 rounded border block">
@@ -400,7 +400,7 @@ export default function ReferralPromotion() {
               🔗 Share Your Link
             </button>
 
-            {/* 抽奖按钮 */}
+            {/* Claim prize button */}
             {referralData.canClaim && (
               <button
                 onClick={claimPrize}

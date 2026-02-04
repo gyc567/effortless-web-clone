@@ -25,4 +25,3 @@ const Index = () => {
 };
 
 export default Index;
-// Referral system deployed - Wed Feb  4 09:28:10 AM UTC 2026

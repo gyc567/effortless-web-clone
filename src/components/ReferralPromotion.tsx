@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { Check, Twitter, Gift, Users, Trophy } from 'lucide-react';
 
 interface ReferralData {
@@ -12,7 +12,7 @@ interface ReferralData {
 }
 
 export default function ReferralPromotion() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

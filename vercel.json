@@ -1,7 +1,15 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "functions": {
-    "api/referral/*.js": {
+    "api/**/*.js": {
       "runtime": "nodejs18.x"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ]
 }

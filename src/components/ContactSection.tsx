@@ -13,7 +13,7 @@ const XIcon = () => (
 
 const ContactSection = () => {
   const shareUrl = "https://www.openclawai.shop/";
-  const shareText = "Check out MiniBot PC - Your Private AI Assistant in a Box ($199)";
+  const shareText = "Check out MiniBot PC - Your Private AI Assistant in a Box ($299)";
 
   return (
     <section id="contact" className="w-full px-4 md:px-8 py-12 md:py-16 border-t border-border">

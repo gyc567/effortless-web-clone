@@ -86,7 +86,7 @@ const OpenClawSection = () => {
           </div>
           <div className="grid grid-cols-3 gap-4 p-4 border-t border-border text-sm text-center">
             <div className="text-left">Monthly Cost</div>
-            <div className="text-primary font-medium">$199 (one-time)</div>
+            <div className="text-primary font-medium">$299 (one-time)</div>
             <div className="text-muted-foreground">$20/month</div>
           </div>
           <div className="grid grid-cols-3 gap-4 p-4 border-t border-border text-sm text-center">

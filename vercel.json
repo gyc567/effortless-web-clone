@@ -1,13 +1,7 @@
 {
   "functions": {
     "api/referral/*.ts": {
-      "runtime": "edge"
+      "runtime": "nodejs18.x"
     }
-  },
-  "rewrites": [
-    {
-      "source": "/api/referral/:match*",
-      "destination": "/api/referral/:match*"
-    }
-  ]
+  }
 }

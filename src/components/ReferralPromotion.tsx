@@ -1,6 +1,22 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Twitter, Gift, Users, Trophy } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
+
+// Supabase 客户端（前端安全方式）
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://qmgbaqqapqrxswssiavz.supabase.co';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_NQ1m4BylCN-iAriXQpBYJw_Jip80Tuv';
+
+// 如果环境变量不存在，显示警告
+if (!import.meta.env.VITE_SUPABASE_URL) {
+  console.warn('VITE_SUPABASE_URL not set, using default');
+}
+if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+  console.warn('VITE_SUPABASE_ANON_KEY not set, using default');
+}
+
+// 创建客户端（带默认值）
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 interface ReferralData {
   code: string;
@@ -34,20 +50,54 @@ export default function ReferralPromotion() {
     setError('');
 
     try {
-      // 调用 API 生成推广码
-      const res = await fetch('/api/referral/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ twitterHandle: twitterHandle.replace('@', '') })
-      });
+      const handle = twitterHandle.replace('@', '').toLowerCase();
+      const timestamp = Date.now().toString(36);
+      const random = Math.random().toString(36).substring(2, 6);
+      const code = `${handle.substring(0, 4)}_${timestamp}_${random}`.toLowerCase();
 
-      const data = await res.json();
+      // 直接调用 Supabase
+      const { data: existing } = await supabase
+        .from('referrals')
+        .select('*')
+        .eq('twitter_handle', handle)
+        .single();
 
-      if (data.success) {
-        setPromoCode(data.code);
+      if (existing) {
+        setPromoCode(existing.promo_code);
         setStep(2);
+        return;
+      }
+
+      const { error: insertError } = await supabase
+        .from('referrals')
+        .insert({
+          twitter_handle: handle,
+          promo_code: code,
+          verified_tweets: 0,
+          can_claim: false,
+          claimed: false,
+          lottery_tickets: 0
+        });
+
+      if (insertError) {
+        // 如果是唯一约束冲突，说明用户已存在
+        if (insertError.message?.includes('duplicate key')) {
+          const { data: existing2 } = await supabase
+            .from('referrals')
+            .select('promo_code')
+            .eq('twitter_handle', handle)
+            .single();
+          
+          if (existing2) {
+            setPromoCode(existing2.promo_code);
+            setStep(2);
+            return;
+          }
+        }
+        setError('生成失败，请重试');
       } else {
-        setError(data.error || '生成推广码失败');
+        setPromoCode(code);
+        setStep(2);
       }
     } catch (err) {
       setError('网络错误，请重试');
@@ -67,29 +117,65 @@ export default function ReferralPromotion() {
     setError('');
 
     try {
-      const res = await fetch('/api/referral/verify-tweet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          twitterHandle: twitterHandle.replace('@', ''),
-          tweetUrl,
-          promoCode
-        })
+      // 获取推广者信息
+      const { data: referral, error: refError } = await supabase
+        .from('referrals')
+        .select('*')
+        .eq('promo_code', promoCode)
+        .single();
+
+      if (refError || !referral) {
+        setError('推广码无效');
+        setLoading(false);
+        return;
+      }
+
+      // 检查是否已验证此推文
+      const { data: existingTweet } = await supabase
+        .from('verified_tweets')
+        .select('*')
+        .eq('tweet_url', tweetUrl)
+        .single();
+
+      if (existingTweet) {
+        setError('此推文已被验证');
+        setLoading(false);
+        return;
+      }
+
+      // 记录推文
+      await supabase.from('verified_tweets').insert({
+        referral_id: referral.id,
+        twitter_handle: referral.twitter_handle,
+        tweet_url: tweetUrl
       });
 
-      const data = await res.json();
+      // 更新推广者计数
+      const newCount = referral.verified_tweets + 1;
+      const canClaim = newCount >= 10;
 
-      if (data.success) {
-        // 检查是否解锁抽奖
-        if (data.referralData.verifiedTweets >= 10) {
-          setReferralData(data.referralData);
-          setStep(4); // 直接跳到抽奖
-        } else {
-          setReferralData(data.referralData);
-          setStep(3); // 显示进度
-        }
+      await supabase
+        .from('referrals')
+        .update({ 
+          verified_tweets: newCount,
+          can_claim: canClaim,
+          lottery_tickets: canClaim ? 1 : 0
+        })
+        .eq('id', referral.id);
+
+      // 更新本地状态
+      const newReferralData: ReferralData = {
+        ...referralData!,
+        verifiedTweets: newCount,
+        canClaim,
+        lotteryTickets: canClaim ? 1 : 0
+      };
+      setReferralData(newReferralData);
+
+      if (newCount >= 10) {
+        setStep(4);
       } else {
-        setError(data.error || '验证失败，请检查推文链接');
+        setStep(3);
       }
     } catch (err) {
       setError('网络错误，请重试');
@@ -106,25 +192,54 @@ export default function ReferralPromotion() {
     setError('');
 
     try {
-      const res = await fetch('/api/referral/claim-prize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ promoCode })
-      });
+      // 获取推广者信息
+      const { data: referral, error } = await supabase
+        .from('referrals')
+        .select('*')
+        .eq('promo_code', promoCode)
+        .single();
 
-      const data = await res.json();
-
-      if (data.success) {
-        if (data.won) {
-          alert('🎉 恭喜！你中奖了！我们会尽快联系你发送主机！');
-        } else {
-          alert('很遗憾，这次没有中奖。继续推广可以增加抽奖机会！');
-        }
-        // 更新数据
-        setReferralData(data.updatedData);
-      } else {
-        setError(data.error || '抽奖失败');
+      if (error || !referral) {
+        setError('推广码无效');
+        setLoading(false);
+        return;
       }
+
+      if (referral.claimed) {
+        setError('你已经中过奖了！');
+        setLoading(false);
+        return;
+      }
+
+      const WIN_PROBABILITY = 0.1;
+      const MAX_ATTEMPTS = 3;
+      const won = Math.random() < WIN_PROBABILITY;
+
+      await supabase
+        .from('referrals')
+        .update({
+          claimed: won,
+          claim_attempts: (referral.claim_attempts || 0) + 1,
+          won_at: won ? new Date().toISOString() : null
+        })
+        .eq('id', referral.id);
+
+      if (won) {
+        await supabase.from('winners').insert({
+          referral_id: referral.id,
+          twitter_handle: referral.twitter_handle,
+          prize: 'MiniBot PC'
+        });
+        alert('🎉 恭喜！你中奖了！我们会尽快联系你发送主机！');
+      } else {
+        alert('很遗憾，这次没有中奖。继续推广可以增加抽奖机会！');
+      }
+
+      // 更新数据
+      setReferralData({
+        ...referralData,
+        claimed: won
+      });
     } catch (err) {
       setError('网络错误，请重试');
     } finally {

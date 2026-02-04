@@ -37,33 +37,40 @@ CREATE TABLE IF NOT EXISTS winners (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 4. 创建索引
+-- 4. 创建索引 (PostgreSQL 支持 INDEX IF NOT EXISTS)
 CREATE INDEX IF NOT EXISTS idx_referrals_promo_code ON referrals(promo_code);
 CREATE INDEX IF NOT EXISTS idx_referrals_twitter_handle ON referrals(twitter_handle);
 CREATE INDEX IF NOT EXISTS idx_verified_tweets_referral_id ON verified_tweets(referral_id);
 CREATE INDEX IF NOT EXISTS idx_verified_tweets_tweet_url ON verified_tweets(tweet_url);
 
--- 5. 启用 Row Level Security (可选)
+-- 5. 启用 Row Level Security (RLS)
+-- 注意：必须先启用 RLS，策略才会生效
+ALTER TABLE referrals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE verified_tweets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE winners ENABLE ROW LEVEL SECURITY;
 
--- 创建策略 - 允许用户查询自己的推广记录
-CREATE POLICY IF NOT EXISTS "Users can view own referrals"
-  ON referrals FOR SELECT
+-- 6. 创建 RLS 策略
+-- 由于 PostgreSQL 不支持 CREATE POLICY IF NOT EXISTS，
+-- 我们采取"先删除再创建"的方案，确保脚本可重复运行。
+
+-- [referrals 表策略]
+DROP POLICY IF EXISTS "Users can view own referrals" ON referrals;
+CREATE POLICY "Users can view own referrals" ON referrals FOR SELECT
   USING (auth.uid()::TEXT = twitter_handle);
 
--- 允许插入自己的推广记录
-CREATE POLICY IF NOT EXISTS "Users can insert own referrals"
-  ON referrals FOR INSERT
+DROP POLICY IF EXISTS "Users can insert own referrals" ON referrals;
+CREATE POLICY "Users can insert own referrals" ON referrals FOR INSERT
   WITH CHECK (auth.uid()::TEXT = twitter_handle);
 
--- 6. 插入示例数据（可选）
--- INSERT INTO referrals (twitter_handle, promo_code) VALUES ('example', 'examp_abc123');
+-- [verified_tweets 表策略]
+DROP POLICY IF EXISTS "Users can view own tweets" ON verified_tweets;
+CREATE POLICY "Users can view own tweets" ON verified_tweets FOR SELECT
+  USING (auth.uid()::TEXT = twitter_handle);
 
--- 7. 查看创建的表
+-- 7. 插入示例数据 (可选，取消注释后可测试)
+-- INSERT INTO referrals (twitter_handle, promo_code)
+-- VALUES ('example_user', 'PROMO_123')
+-- ON CONFLICT (twitter_handle) DO NOTHING;
+
+-- 8. 验证查询
 -- SELECT * FROM referrals LIMIT 5;
--- SELECT * FROM verified_tweets LIMIT 5;
--- SELECT * FROM winners LIMIT 5;
-
--- 统计查询
--- SELECT COUNT(*) as total_referrals FROM referrals;
--- SELECT COUNT(*) as verified_tweets FROM verified_tweets;
--- SELECT COUNT(*) as total_winners FROM winners;

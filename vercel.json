@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/referral/*.ts": {
+      "runtime": "edge"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/referral/:match*",
+      "destination": "/api/referral/:match*"
+    }
+  ]
+}

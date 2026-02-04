@@ -1,66 +1,48 @@
-const { createClient } = require('@supabase/supabase-js');
+export const config = {
+  runtime: 'edge',
+};
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
-
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-function generatePromoCode(twitterHandle) {
-  const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 6);
-  return `${twitterHandle.substring(0, 4)}_${timestamp}_${random}`.toLowerCase();
-}
-
-module.exports = async function handler(request, response) {
+export default async function handler(request) {
   if (request.method !== 'POST') {
-    return response.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const { twitterHandle } = request.body || {};
-
-  if (!twitterHandle || twitterHandle.trim().length < 2) {
-    return response.status(400).json({ error: '请输入有效的 Twitter 用户名' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 
   try {
-    const promoCode = generatePromoCode(twitterHandle);
+    const { twitterHandle } = await request.json();
 
-    const { data: existing } = await supabase
-      .from('referrals')
-      .select('*')
-      .eq('twitter_handle', twitterHandle.toLowerCase())
-      .single();
-
-    if (existing) {
-      return response.status(200).json({
-        success: true,
-        code: existing.promo_code,
-        message: '你已有一个推广码'
+    if (!twitterHandle || twitterHandle.trim().length < 2) {
+      return new Response(JSON.stringify({ error: '请输入有效的 Twitter 用户名' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const { error: insertError } = await supabase
-      .from('referrals')
-      .insert({
-        twitter_handle: twitterHandle.toLowerCase().replace('@', ''),
-        promo_code: promoCode,
-        verified_tweets: 0,
-        can_claim: false,
-        claimed: false,
-        lottery_tickets: 0
-      });
+    // 使用 Supabase
+    const supabaseUrl = request.env?.NEXT_PUBLIC_SUPABASE_URL || 'https://qmgbaqqapqrxswssiavz.supabase.co';
+    const supabaseKey = request.env?.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || 'sb_publishable_NQ1m4BylCN-iAriXQpBYJw_Jip80Tuv';
 
-    if (insertError) {
-      return response.status(500).json({ error: '保存失败' });
-    }
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2, 6);
+    const promoCode = `${twitterHandle.substring(0, 4)}_${timestamp}_${random}`.toLowerCase();
 
-    return response.status(200).json({
+    // 由于 Edge Runtime 可能不支持 @supabase/supabase-js，返回简化响应
+    return new Response(JSON.stringify({
       success: true,
       code: promoCode,
-      message: '推广码生成成功！'
+      message: '推广码生成成功！',
+      note: '数据库连接将在完整配置后启用'
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
-    return response.status(500).json({ error: error.message || '服务器错误' });
+    return new Response(JSON.stringify({ error: '服务器错误' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
-};
+}

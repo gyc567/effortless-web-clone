@@ -1,3 +1,4 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project.supabase.co';
@@ -11,14 +12,20 @@ function generatePromoCode(twitterHandle: string): string {
   return code;
 }
 
-export async function onRequestPost({ request }) {
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(request: VercelRequest, response: VercelResponse) {
+  if (request.method !== 'POST') {
+    return response.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
-    const { twitterHandle } = await request.json();
+    const { twitterHandle } = request.body || {};
 
     if (!twitterHandle || twitterHandle.trim().length < 2) {
-      return new Response(JSON.stringify({ error: '请输入有效的 Twitter 用户名' }), {
-        status: 400
-      });
+      return response.status(400).json({ error: '请输入有效的 Twitter 用户名' });
     }
 
     const promoCode = generatePromoCode(twitterHandle);
@@ -31,15 +38,15 @@ export async function onRequestPost({ request }) {
       .single();
 
     if (existing) {
-      return new Response(JSON.stringify({
+      return response.status(200).json({
         success: true,
         code: existing.promo_code,
         message: '你已有一个推广码'
-      }), { status: 200 });
+      });
     }
 
     // 创建新记录
-    const { error } = await supabase
+    const { error: insertError } = await supabase
       .from('referrals')
       .insert({
         twitter_handle: twitterHandle.toLowerCase().replace('@', ''),
@@ -50,17 +57,17 @@ export async function onRequestPost({ request }) {
         lottery_tickets: 0
       });
 
-    if (error) {
-      return new Response(JSON.stringify({ error: '保存失败' }), { status: 500 });
+    if (insertError) {
+      return response.status(500).json({ error: '保存失败' });
     }
 
-    return new Response(JSON.stringify({
+    return response.status(200).json({
       success: true,
       code: promoCode,
       message: '推广码生成成功！'
-    }), { status: 200 });
+    });
 
-  } catch (error) {
-    return new Response(JSON.stringify({ error: '服务器错误' }), { status: 500 });
+  } catch (error: any) {
+    return response.status(500).json({ error: error.message || '服务器错误' });
   }
 }

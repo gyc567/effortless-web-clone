@@ -44,28 +44,24 @@ CREATE INDEX IF NOT EXISTS idx_verified_tweets_referral_id ON verified_tweets(re
 CREATE INDEX IF NOT EXISTS idx_verified_tweets_tweet_url ON verified_tweets(tweet_url);
 
 -- 5. 启用 Row Level Security (RLS)
--- 注意：必须先启用 RLS，策略才会生效
 ALTER TABLE referrals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE verified_tweets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE winners ENABLE ROW LEVEL SECURITY;
 
--- 6. 创建 RLS 策略
--- 由于 PostgreSQL 不支持 CREATE POLICY IF NOT EXISTS，
--- 我们采取"先删除再创建"的方案，确保脚本可重复运行。
-
--- [referrals 表策略]
+-- 6. 创建 RLS 策略（公开访问，不需要登录）
 DROP POLICY IF EXISTS "Users can view own referrals" ON referrals;
-CREATE POLICY "Users can view own referrals" ON referrals FOR SELECT
-  USING (auth.uid()::TEXT = twitter_handle);
-
 DROP POLICY IF EXISTS "Users can insert own referrals" ON referrals;
-CREATE POLICY "Users can insert own referrals" ON referrals FOR INSERT
-  WITH CHECK (auth.uid()::TEXT = twitter_handle);
-
--- [verified_tweets 表策略]
 DROP POLICY IF EXISTS "Users can view own tweets" ON verified_tweets;
-CREATE POLICY "Users can view own tweets" ON verified_tweets FOR SELECT
-  USING (auth.uid()::TEXT = twitter_handle);
+
+-- 公开访问策略（允许匿名用户操作）
+CREATE POLICY "Public can do everything" ON referrals
+  FOR ALL USING (true) WITH CHECK (true);
+
+CREATE POLICY "Public can do everything for tweets" ON verified_tweets
+  FOR ALL USING (true) WITH CHECK (true);
+
+CREATE POLICY "Public can do everything for winners" ON winners
+  FOR ALL USING (true) WITH CHECK (true);
 
 -- 7. 插入示例数据 (可选，取消注释后可测试)
 -- INSERT INTO referrals (twitter_handle, promo_code)

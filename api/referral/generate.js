@@ -1,25 +1,17 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
+const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  return response.status(500).json({ error: 'Missing environment variables' });
-}
-
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-function generatePromoCode(twitterHandle: string): string {
+function generatePromoCode(twitterHandle) {
   const timestamp = Date.now().toString(36);
   const random = Math.random().toString(36).substring(2, 6);
   return `${twitterHandle.substring(0, 4)}_${timestamp}_${random}`.toLowerCase();
 }
 
-export default async function handler(
-  request: VercelRequest,
-  response: VercelResponse
-) {
+module.exports = async function handler(request, response) {
   if (request.method !== 'POST') {
     return response.status(405).json({ error: 'Method not allowed' });
   }
@@ -68,7 +60,7 @@ export default async function handler(
       message: '推广码生成成功！'
     });
 
-  } catch (error: any) {
+  } catch (error) {
     return response.status(500).json({ error: error.message || '服务器错误' });
   }
-}
+};

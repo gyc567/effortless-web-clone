@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/referral/*.ts": {
+    "api/referral/*.js": {
       "runtime": "nodejs18.x"
     }
   }

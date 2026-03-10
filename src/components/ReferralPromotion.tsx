@@ -267,9 +267,7 @@ export default function ReferralPromotion() {
           🎁 Refer & Win a Free MiniBot PC!
         </h2>
         <p className="text-muted-foreground mb-8">
-          Promote MiniBot PC on Twitter, verify 10 people, and enter our lottery to win a free主机!
         </p>
-
         {/* 错误提示 */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
